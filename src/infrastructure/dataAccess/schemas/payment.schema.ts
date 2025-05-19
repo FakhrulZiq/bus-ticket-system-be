@@ -1,0 +1,25 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+import { Ticket } from './ticket.schema';
+
+export type PaymentDocument = Payment & Document;
+
+@Schema({ timestamps: true })
+export class Payment {
+  @Prop({ type: Types.ObjectId, ref: Ticket.name, required: true })
+  ticketId: Types.ObjectId;
+
+  @Prop({ required: true })
+  amount: number;
+
+  @Prop({ default: 'SUCCESS', enum: ['SUCCESS', 'FAILED'] })
+  status: string;
+
+  @Prop()
+  method: string; // 'FPX', 'CreditCard', 'Ewallet'
+
+  @Prop()
+  transactionId: string;
+}
+
+export const PaymentSchema = SchemaFactory.createForClass(Payment);
