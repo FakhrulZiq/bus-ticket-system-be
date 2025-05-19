@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { BaseSchema } from './base.schema';
 import { Bus } from './bus.schema';
 import { Route } from './route.schema';
 
 export type ScheduleDocument = Schedule & Document;
 
 @Schema({ timestamps: true })
-export class Schedule {
+export class Schedule extends BaseSchema {
   @Prop({ type: Types.ObjectId, ref: Bus.name, required: true })
   busId: Types.ObjectId;
 
