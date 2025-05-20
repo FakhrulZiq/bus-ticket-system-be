@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from './user.schema';
+import { BaseSchema } from './base.schema';
 import { Schedule } from './schedule.schema';
+import { User } from './user.schema';
 
 export type TicketDocument = Ticket & Document;
 
 @Schema({ timestamps: true })
-export class Ticket {
+export class Ticket extends BaseSchema {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   userId: Types.ObjectId;
 
