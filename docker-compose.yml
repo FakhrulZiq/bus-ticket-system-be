@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: bus-ticket-system-be
+    ports:
+      - '3001:3001'
+    depends_on:
+      - mongo
+      - redis
+    env_file:
+      - .env.docker
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    command: mongod --bind_ip_all --auth
+    volumes:
+      - mongodata:/data/db
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: redis-cache-bus
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+volumes:
+  mongodata:
+  redisdata:
