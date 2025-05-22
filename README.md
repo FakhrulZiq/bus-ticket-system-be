@@ -58,7 +58,7 @@ src/
   - MongoDB (local or Docker)
   - npm
 
-Installation
+### Installation
 
 Clone the repository:
 ```bash
@@ -77,35 +77,30 @@ MONGO_URI=mongodb://localhost:27017/bus-ticket-system
 JWT_SECRET=your_jwt_secret_key
 PORT=3000
 ```
-Running the Application
 
-Option 1: Local MongoDB
+### Running the Application
 
+#### Option 1: Local MongoDB
 ```bash
 # Start MongoDB service (Mac)
 brew services start mongodb-community
-
 
 # Run application
 npm run start:dev
 ```
 
-Option 2: Dockerized MongoDB
-
+#### Option 2: Dockerized MongoDB
 ```bash
 docker-compose up -d
 npm run start:dev
 ```
 
 ## 📚 API Documentation
+```bash
+# Run application
+npm run start:dev
+```
+View Swagger API Documentation 👉 http://localhost:3000/api
 
-User Endpoints
 
-| Method | Endpoint         | Description               | Auth Required       |
-|--------|------------------|---------------------------|---------------------|
-| POST   | `/user/register` | Register new user         | No                  |
-| POST   | `/user/login`    | User login (JWT token)    | No                  |
-| GET    | `/user`          | List users (paginated)    | Yes (Admin only)    |
-| GET    | `/user/:id`      | Get user details          | Yes (Owner/Admin)   |
-| PATCH  | `/user/:id`      | Update user profile       | Yes (Owner only)    |
 
