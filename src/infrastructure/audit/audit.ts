@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { CRUD_ACTION } from '../constant';
+import { CRUD_ACTION } from '../../utilities/constant';
 import { IAudit } from '../serviceInterfaces/audit.interface';
 
 export class Audit implements IAudit {
