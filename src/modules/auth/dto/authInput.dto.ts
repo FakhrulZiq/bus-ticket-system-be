@@ -7,3 +7,8 @@ export class LoginInput {
   @ApiProperty()
   password: string;
 }
+
+export class LogoutInput {
+  @ApiProperty()
+  refreshToken: string;
+}

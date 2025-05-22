@@ -1,5 +1,6 @@
 export interface IAuthService {
   validateUser(input: IValidateUserInput): Promise<IValidateUserResponse>;
+  logout(input: ILogoutInput): Promise<ILogOutResponse>;
 }
 
 export interface IValidateUserInput {
@@ -14,4 +15,12 @@ export interface IValidateUserResponse {
   role: string;
   name: string;
   id: string;
+}
+
+export interface ILogoutInput {
+  refreshToken: string;
+}
+
+export interface ILogOutResponse {
+  message: string;
 }

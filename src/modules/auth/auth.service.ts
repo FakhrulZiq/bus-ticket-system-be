@@ -1,4 +1,10 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -7,6 +13,8 @@ import { UserDocument } from 'src/infrastructure/dataAccess/schemas/user.schema'
 import { IContextAwareLogger } from 'src/infrastructure/logger';
 import {
   IAuthService,
+  ILogoutInput,
+  ILogOutResponse,
   IValidateUserInput,
   IValidateUserResponse,
 } from 'src/infrastructure/serviceInterfaces/auth.service.interface';
@@ -62,6 +70,44 @@ export class AuthService implements IAuthService {
         name: user.name,
         id: user.id,
       };
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async logout(input: ILogoutInput): Promise<ILogOutResponse> {
+    try {
+      const payload = this._jwtService.verify(input.refreshToken, {
+        secret: this._configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+
+      const user: UserDocument = await this._userRepository.findOne({
+        email: payload.email,
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (!user.refreshToken) {
+        throw new BadRequestException(
+          'User already logged out, Please login again!',
+        );
+      }
+      const isValid = await bcrypt.compare(
+        input.refreshToken,
+        user.refreshToken,
+      );
+
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      user.refreshToken = null;
+      await this._userRepository.save(user);
+
+      return { message: 'User log out successfully' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
