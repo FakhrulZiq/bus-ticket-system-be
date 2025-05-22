@@ -16,7 +16,7 @@ export class User extends BaseSchema {
   phoneNumber: string;
 
   @Prop({ required: true })
-  passwordHash: string;
+  password: string;
 
   @Prop({ default: 'PASSENGER', enum: ['PASSENGER', 'ADMIN'] })
   role: string;

@@ -1,14 +1,18 @@
 import { Prop } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
-export abstract class BaseSchema {
-  @Prop({ type: Date, default: () => new Date() })
-  createdAt: Date;
+export class BaseSchema {
+  @Prop({ type: String, default: uuidv4 })
+  id?: string;
 
   @Prop({ type: Date, default: () => new Date() })
-  updatedAt: Date;
+  createdAt: string;
+
+  @Prop({ type: Date, default: () => new Date() })
+  updatedAt: string;
 
   @Prop({ type: Date, default: null })
-  deletedAt?: Date;
+  deletedAt?: string;
 
   @Prop({ type: String, default: null })
   createdBy?: string;
