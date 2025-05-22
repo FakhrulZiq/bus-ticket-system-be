@@ -11,7 +11,7 @@ import {
   DEFAULT_CACHE_TIME_TO_LIVE,
   PAGINATION,
   TYPES,
-} from 'src/infrastructure/constant';
+} from 'src/utilities/constant';
 import { IUserRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/user.repository.interface';
 import { UserDocument } from 'src/infrastructure/dataAccess/schemas/user.schema';
 import { IContextAwareLogger } from 'src/infrastructure/logger';

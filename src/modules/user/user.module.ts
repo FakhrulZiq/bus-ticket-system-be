@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TYPES } from 'src/infrastructure/constant';
+import { TYPES } from 'src/utilities/constant';
 import { UserRepository } from 'src/infrastructure/dataAccess/repositories/user.repository';
 import {
   User,

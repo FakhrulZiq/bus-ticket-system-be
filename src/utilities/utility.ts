@@ -1,4 +1,4 @@
-import { PAGINATION } from 'src/infrastructure/constant';
+import { PAGINATION } from 'src/utilities/constant';
 import {
   IFindUserResponse,
   IListUserInput,

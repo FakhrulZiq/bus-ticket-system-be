@@ -18,6 +18,9 @@ export class User extends BaseSchema {
   @Prop({ required: true })
   password: string;
 
+  @Prop()
+  refreshToken: string;
+
   @Prop({ default: 'PASSENGER', enum: ['PASSENGER', 'ADMIN'] })
   role: string;
 }

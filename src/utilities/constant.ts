@@ -3,6 +3,7 @@ export const TYPES = {
   IUserService: 'IUserService',
   IUserRepository: 'IUserRepository',
   IRedisService: 'IRedisService',
+  IAuthService: 'IAuthService',
 };
 
 export const CRUD_ACTION = {
@@ -17,3 +18,5 @@ export const DEFAULT_CACHE_TIME_TO_LIVE = 60 * 60 * 24;
 export const PAGINATION = {
   defaultRecords: 10,
 };
+
+export const ROLES_KEY = 'roles';
