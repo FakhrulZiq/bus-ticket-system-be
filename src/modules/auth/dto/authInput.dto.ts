@@ -13,4 +13,6 @@ export class LogoutInput {
   refreshToken: string;
 }
 
+export class RefreshTokenInput extends LogoutInput {}
+
 export class ResetPasswordInput extends LoginInput {}

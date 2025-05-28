@@ -26,3 +26,8 @@ export class LogOutResponse {
 }
 
 export class ResetPasswordResponse extends LogOutResponse {}
+
+export class NewAccessTokenResponse {
+  @ApiProperty()
+  accessToken: string;
+}
