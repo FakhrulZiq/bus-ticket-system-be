@@ -1,6 +1,7 @@
 export interface IAuthService {
   validateUser(input: IValidateUserInput): Promise<IValidateUserResponse>;
   logout(input: ILogoutInput): Promise<ILogOutResponse>;
+  resetPassword(input: IResetPasswordInput): Promise<IResetPasswordResponse>;
 }
 
 export interface IValidateUserInput {
@@ -24,3 +25,7 @@ export interface ILogoutInput {
 export interface ILogOutResponse {
   message: string;
 }
+
+export interface IResetPasswordInput extends IValidateUserInput {}
+
+export interface IResetPasswordResponse extends ILogOutResponse {}

@@ -12,3 +12,5 @@ export class LogoutInput {
   @ApiProperty()
   refreshToken: string;
 }
+
+export class ResetPasswordInput extends LoginInput {}
