@@ -2,6 +2,7 @@ export interface IUserService {
   createUser(input: ICreateUserInput): Promise<IRegisterResponse>;
   listUser(input: IListUserInput): Promise<IFindUserResponse>;
   clearRefreshToken(id: string): Promise<void>;
+  findById(id: string): Promise<IUserByID>;
 }
 
 export interface ICreateUserInput {
