@@ -19,3 +19,8 @@ export class AuthResponse {
   @ApiProperty()
   id: string;
 }
+
+export class LogOutResponse {
+  @ApiProperty()
+  message: string;
+}
