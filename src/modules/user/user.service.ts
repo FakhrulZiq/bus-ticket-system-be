@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Audit } from 'src/infrastructure/audit/audit';
@@ -99,6 +100,20 @@ export class UserService implements IUserService {
       await this._cacheResponse(paginatedBook, cacheKey);
 
       return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async clearRefreshToken(id: string): Promise<void> {
+    try {
+      const user = await this._userRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      await this._userRepository.update({ id }, { refreshToken: null });
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

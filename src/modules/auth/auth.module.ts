@@ -15,6 +15,7 @@ import { TYPES } from 'src/utilities/constant';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.stratergy';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [
@@ -38,6 +39,10 @@ import { JwtStrategy } from './jwt.stratergy';
     {
       provide: TYPES.IUserRepository,
       useClass: UserRepository,
+    },
+    {
+      provide: TYPES.IUserService,
+      useClass: UserService,
     },
     { provide: TYPES.IApplicationLogger, useClass: ApplicationLogger },
     { provide: TYPES.IRedisService, useClass: RedisCacheService },

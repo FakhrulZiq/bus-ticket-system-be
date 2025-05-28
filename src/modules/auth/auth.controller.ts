@@ -6,11 +6,13 @@ import { JwtAuthGuard } from './auth.guard';
 import {
   LoginInput,
   LogoutInput,
+  RefreshTokenInput,
   ResetPasswordInput,
 } from './dto/authInput.dto';
 import {
   AuthResponse,
   LogOutResponse,
+  NewAccessTokenResponse,
   ResetPasswordResponse,
 } from './dto/authOutput.dto';
 
@@ -42,5 +44,13 @@ export class AuthController {
     @Body() input: ResetPasswordInput,
   ): Promise<ResetPasswordResponse> {
     return await this._authService.resetPassword(input);
+  }
+
+  @Post('refresh-token')
+  @ApiOperation({ summary: 'Refresh token' })
+  async refreshToken(
+    @Body() input: RefreshTokenInput,
+  ): Promise<NewAccessTokenResponse> {
+    return await this._authService.assignNewAcessToken(input);
   }
 }

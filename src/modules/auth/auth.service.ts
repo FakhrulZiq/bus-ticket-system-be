@@ -17,11 +17,15 @@ import {
   IAuthService,
   ILogoutInput,
   ILogOutResponse,
+  INewAccessToken,
+  INewAccessTokenInput,
+  IPayloadJwt,
   IResetPasswordInput,
   IResetPasswordResponse,
   IValidateUserInput,
   IValidateUserResponse,
 } from 'src/infrastructure/serviceInterfaces/auth.service.interface';
+import { IUserService } from 'src/infrastructure/serviceInterfaces/user.service.interface';
 import { CRUD_ACTION, TYPES } from 'src/utilities/constant';
 
 @Injectable()
@@ -29,6 +33,8 @@ export class AuthService implements IAuthService {
   constructor(
     @Inject(TYPES.IUserRepository)
     private readonly _userRepository: IUserRepository,
+    @Inject(TYPES.IUserService)
+    private readonly _userService: IUserService,
     private readonly _configService: ConfigService,
     private readonly _jwtService: JwtService,
     @Inject(TYPES.IApplicationLogger)
@@ -151,6 +157,44 @@ export class AuthService implements IAuthService {
       }
 
       return { message: 'Password reset successfully!' };
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async assignNewAcessToken(
+    input: INewAccessTokenInput,
+  ): Promise<INewAccessToken> {
+    try {
+      const today: number = Date.now();
+      const payload: IPayloadJwt = this._jwtService.verify(input.refreshToken, {
+        secret: this._configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+      const user = await this._userRepository.findOne({ email: payload.email });
+
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      if (today > payload.exp * 1000) {
+        await this._userService.clearRefreshToken(user.email);
+
+        throw new BadRequestException(
+          'Your session has expired. Please log in again.',
+        );
+      }
+
+      const inputNewToken = {
+        email: user.email,
+        sub: user.id,
+        role: user.role,
+      };
+      const newAccessToken = this._jwtService.sign(inputNewToken, {
+        expiresIn: '2m',
+      });
+
+      return { accessToken: newAccessToken };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
