@@ -8,17 +8,21 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Audit } from 'src/infrastructure/audit/audit';
 import { IUserRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/user.repository.interface';
 import { UserDocument } from 'src/infrastructure/dataAccess/schemas/user.schema';
 import { IContextAwareLogger } from 'src/infrastructure/logger';
+import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   IAuthService,
   ILogoutInput,
   ILogOutResponse,
+  IResetPasswordInput,
+  IResetPasswordResponse,
   IValidateUserInput,
   IValidateUserResponse,
 } from 'src/infrastructure/serviceInterfaces/auth.service.interface';
-import { TYPES } from 'src/utilities/constant';
+import { CRUD_ACTION, TYPES } from 'src/utilities/constant';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -108,6 +112,45 @@ export class AuthService implements IAuthService {
       await this._userRepository.save(user);
 
       return { message: 'User log out successfully' };
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async resetPassword(
+    input: IResetPasswordInput,
+  ): Promise<IResetPasswordResponse> {
+    try {
+      const { email, password } = input;
+
+      const user = await this._userRepository.findOne({ email });
+      if (!user) {
+        throw new NotFoundException(`There is no user with email ${email}`);
+      }
+
+      const hashedPassword: string = await bcrypt.hash(password, 10);
+
+      const audit: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.update,
+      );
+
+      const update = {
+        password: hashedPassword,
+        ...audit,
+      };
+
+      const savedPassword = await this._userRepository.update(
+        { email },
+        update,
+      );
+
+      if (!savedPassword) {
+        throw new Error('Update user password failed.');
+      }
+
+      return { message: 'Password reset successfully!' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

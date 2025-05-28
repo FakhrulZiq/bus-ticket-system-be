@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Document, FilterQuery, Model } from 'mongoose';
+import { Document, FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { IGenericRepository } from './interfaces/generic.repository.interface';
 
 @Injectable()
@@ -38,6 +38,21 @@ export class GenericRepository<TModel, TDocument extends Document>
       return await modelInstance.save();
     } catch (error) {
       throw new Error(`Failed to save document: ${error.message}`);
+    }
+  }
+
+  async update(
+    filter: FilterQuery<TDocument>,
+    update: UpdateQuery<TDocument>,
+  ): Promise<TDocument | null> {
+    try {
+      return await this.model
+        .findOneAndUpdate(filter, update, {
+          new: true,
+        })
+        .exec();
+    } catch (error) {
+      throw new Error(`Failed to update document: ${error.message}`);
     }
   }
 }

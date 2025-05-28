@@ -24,3 +24,5 @@ export class LogOutResponse {
   @ApiProperty()
   message: string;
 }
+
+export class ResetPasswordResponse extends LogOutResponse {}
