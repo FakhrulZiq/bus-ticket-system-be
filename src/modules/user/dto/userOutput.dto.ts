@@ -5,6 +5,8 @@ export class CreateUserResponse {
   message: string;
 }
 
+export class DeleteResponse extends CreateUserResponse {}
+
 export class FindUserResponse {
   @ApiProperty()
   data: UserByIdResponse[];

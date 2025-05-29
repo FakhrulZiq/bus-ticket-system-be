@@ -3,6 +3,7 @@ export interface IUserService {
   listUser(input: IListUserInput): Promise<IFindUserResponse>;
   clearRefreshToken(id: string): Promise<void>;
   findById(id: string): Promise<IUserByID>;
+  deleteUser(id: string, email: string): Promise<IDeleteResponse>;
 }
 
 export interface ICreateUserInput {
@@ -18,6 +19,8 @@ interface IMessageResponse {
 }
 
 export interface IRegisterResponse extends IMessageResponse {}
+
+export interface IDeleteResponse extends IMessageResponse {}
 
 export interface IListUserInput {
   search?: string;

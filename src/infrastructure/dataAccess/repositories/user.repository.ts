@@ -29,7 +29,9 @@ export class UserRepository
       const skip = (pageNum - 1) * pageSize;
       const take = pageSize;
 
-      const filter: any = {};
+      const filter: any = {
+        deletedAt: null,
+      };
 
       if (search) {
         const regex = new RegExp(search, 'i');

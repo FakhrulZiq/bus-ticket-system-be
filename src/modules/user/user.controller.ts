@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -16,6 +18,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { CreateUserInput, ListUserInput } from './dto/userInput.dto';
 import {
   CreateUserResponse,
+  DeleteResponse,
   FindUserResponse,
   UserByIdResponse,
 } from './dto/userOutput.dto';
@@ -47,5 +50,14 @@ export class UserController {
   @ApiOperation({ summary: 'Get user by ID' })
   getUser(@Param('id') id: string): Promise<UserByIdResponse> {
     return this._userService.findById(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete User by ID' })
+  deleteUser(@Param('id') id: string, @Req() req): Promise<DeleteResponse> {
+    const email = req.user.email;
+    return this._userService.deleteUser(id, email);
   }
 }
