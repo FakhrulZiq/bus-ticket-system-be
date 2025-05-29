@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -20,6 +21,7 @@ import { IRedisService } from 'src/infrastructure/redis/redisInterface';
 import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateUserInput,
+  IDeleteResponse,
   IFindUserResponse,
   IListUserInput,
   IRegisterResponse,
@@ -66,6 +68,8 @@ export class UserService implements IUserService {
           `Unable to create a new user with this ${email} email`,
         );
       }
+
+      await this._deleteUserPageCache();
 
       return { message: 'User registration successfully' };
     } catch (error) {
@@ -131,6 +135,35 @@ export class UserService implements IUserService {
       const userById = UserParser.userById(user);
 
       return userById;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async deleteUser(id: string, email: string): Promise<IDeleteResponse> {
+    try {
+      const user = await this._userRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const deleteAuditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.delete,
+      );
+
+      const deleteUser = await this._userRepository.update(
+        { id },
+        { ...deleteAuditProps },
+      );
+      if (!deleteUser) {
+        throw new InternalServerErrorException(`Failed to delete book`);
+      }
+
+      await this._deleteUserPageCache();
+
+      return { message: 'User deleted successfully!' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

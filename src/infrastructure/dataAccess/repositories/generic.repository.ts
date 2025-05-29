@@ -8,9 +8,18 @@ export class GenericRepository<TModel, TDocument extends Document>
 {
   constructor(protected readonly model: Model<TDocument>) {}
 
-  async findAll(filter: FilterQuery<TDocument>): Promise<TDocument[]> {
+  private addSoftDeleteFilter(
+    filter: FilterQuery<TDocument> = {},
+  ): FilterQuery<TDocument> {
+    return {
+      ...filter,
+      deletedAt: null,
+    };
+  }
+
+  async findAll(filter: FilterQuery<TDocument> = {}): Promise<TDocument[]> {
     try {
-      return await this.model.find(filter).exec();
+      return await this.model.find(this.addSoftDeleteFilter(filter)).exec();
     } catch (error) {
       throw new Error(`Failed to find documents: ${error.message}`);
     }
@@ -18,7 +27,7 @@ export class GenericRepository<TModel, TDocument extends Document>
 
   async findOne(filter: FilterQuery<TDocument>): Promise<TDocument | null> {
     try {
-      return await this.model.findOne(filter).exec();
+      return await this.model.findOne(this.addSoftDeleteFilter(filter)).exec();
     } catch (error) {
       throw new Error(`Failed to find document: ${error.message}`);
     }
@@ -26,7 +35,7 @@ export class GenericRepository<TModel, TDocument extends Document>
 
   async findById(id: string): Promise<TDocument | null> {
     try {
-      return await this.model.findById(id).exec();
+      return await this.model.findOne({ _id: id, deletedAt: null }).exec();
     } catch (error) {
       throw new Error(`Failed to find document by ID: ${error.message}`);
     }
@@ -47,7 +56,7 @@ export class GenericRepository<TModel, TDocument extends Document>
   ): Promise<TDocument | null> {
     try {
       return await this.model
-        .findOneAndUpdate(filter, update, {
+        .findOneAndUpdate(this.addSoftDeleteFilter(filter), update, {
           new: true,
         })
         .exec();
