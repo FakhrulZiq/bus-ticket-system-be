@@ -15,4 +15,15 @@ export class UserParser {
     });
     return data;
   }
+
+  static userById(user: User): IUserByID {
+    const { id, name, email, role, phoneNumber } = user;
+    return {
+      id,
+      email,
+      role,
+      name,
+      phoneNumber,
+    };
+  }
 }

@@ -23,6 +23,7 @@ import {
   IFindUserResponse,
   IListUserInput,
   IRegisterResponse,
+  IUserByID,
   IUserService,
 } from 'src/infrastructure/serviceInterfaces/user.service.interface';
 import { UserParser } from './user.parser';
@@ -114,6 +115,22 @@ export class UserService implements IUserService {
       }
 
       await this._userRepository.update({ id }, { refreshToken: null });
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async findById(id: string): Promise<IUserByID> {
+    try {
+      const user = await this._userRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      const userById = UserParser.userById(user);
+
+      return userById;
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
