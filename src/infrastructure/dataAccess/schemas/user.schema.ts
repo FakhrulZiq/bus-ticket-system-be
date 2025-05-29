@@ -23,6 +23,9 @@ export class User extends BaseSchema {
 
   @Prop({ default: 'PASSENGER', enum: ['PASSENGER', 'ADMIN'] })
   role: string;
+
+  @Prop({ default: 'ACTIVE', enum: ['ACTIVE', 'INACTIVE', 'BANNED'] })
+  status: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

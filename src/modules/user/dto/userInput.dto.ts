@@ -38,3 +38,17 @@ export class ListUserInput {
   @ApiProperty()
   roles?: string[];
 }
+
+export class UpdateUserInput {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  role: string;
+
+  @ApiProperty()
+  phoneNumber: string;
+
+  @ApiProperty()
+  status: string;
+}
