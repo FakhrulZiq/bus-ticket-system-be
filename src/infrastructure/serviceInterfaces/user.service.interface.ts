@@ -4,6 +4,11 @@ export interface IUserService {
   clearRefreshToken(id: string): Promise<void>;
   findById(id: string): Promise<IUserByID>;
   deleteUser(id: string, email: string): Promise<IDeleteResponse>;
+  updateUser(
+    id: string,
+    input: IUpdateUserInput,
+    email: string,
+  ): Promise<IUserByID>;
 }
 
 export interface ICreateUserInput {
@@ -45,4 +50,11 @@ export interface IUserByID {
   role: string;
   name: string;
   phoneNumber: string;
+}
+
+export interface IUpdateUserInput {
+  name: string;
+  role: string;
+  phoneNumber: string;
+  status: string;
 }

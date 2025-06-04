@@ -25,6 +25,7 @@ import {
   IFindUserResponse,
   IListUserInput,
   IRegisterResponse,
+  IUpdateUserInput,
   IUserByID,
   IUserService,
 } from 'src/infrastructure/serviceInterfaces/user.service.interface';
@@ -164,6 +165,39 @@ export class UserService implements IUserService {
       await this._deleteUserPageCache();
 
       return { message: 'User deleted successfully!' };
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async updateUser(
+    id: string,
+    input: IUpdateUserInput,
+    email: string,
+  ): Promise<IUserByID> {
+    try {
+      const user = await this._userRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException(`There is no user with ID ${id}`);
+      }
+
+      const auditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.update,
+      );
+
+      const userUpdate = await this._userRepository.update(
+        { id },
+        { ...auditProps, ...input },
+      );
+      if (!userUpdate) {
+        throw new InternalServerErrorException(`Failed to update user`);
+      }
+
+      await this._deleteUserPageCache();
+
+      return UserParser.userById(userUpdate);
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

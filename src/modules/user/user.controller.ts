@@ -6,6 +6,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,7 +16,11 @@ import { TYPES } from 'src/utilities/constant';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { CreateUserInput, ListUserInput } from './dto/userInput.dto';
+import {
+  CreateUserInput,
+  ListUserInput,
+  UpdateUserInput,
+} from './dto/userInput.dto';
 import {
   CreateUserResponse,
   DeleteResponse,
@@ -59,5 +64,17 @@ export class UserController {
   deleteUser(@Param('id') id: string, @Req() req): Promise<DeleteResponse> {
     const email = req.user.email;
     return this._userService.deleteUser(id, email);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user' })
+  async updateUser(
+    @Param('id') id: string,
+    @Body() input: UpdateUserInput,
+    @Req() req,
+  ): Promise<UserByIdResponse> {
+    const email = req.user.email;
+    return await this._userService.updateUser(id, input, email);
   }
 }
