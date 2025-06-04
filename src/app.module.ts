@@ -3,8 +3,15 @@ import { DatabaseModule } from './infrastructure/dataAccess/database/database.mo
 import { RedisCacheModule } from './infrastructure/redis/redisModule';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
 
 @Module({
-  imports: [DatabaseModule, RedisCacheModule, UserModule, AuthModule],
+  imports: [
+    DatabaseModule,
+    RedisCacheModule,
+    UserModule,
+    AuthModule,
+    ScheduleModule,
+  ],
 })
 export class AppModule {}
