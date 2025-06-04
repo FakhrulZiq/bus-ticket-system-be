@@ -1,3 +1,5 @@
+import { IMessageResponse } from 'src/utilities/constant';
+
 export interface IUserService {
   createUser(input: ICreateUserInput): Promise<IRegisterResponse>;
   listUser(input: IListUserInput): Promise<IFindUserResponse>;
@@ -17,10 +19,6 @@ export interface ICreateUserInput {
   phoneNumber: string;
   password: string;
   role: string;
-}
-
-interface IMessageResponse {
-  message: string;
 }
 
 export interface IRegisterResponse extends IMessageResponse {}

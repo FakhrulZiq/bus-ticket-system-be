@@ -4,6 +4,8 @@ export const TYPES = {
   IUserRepository: 'IUserRepository',
   IRedisService: 'IRedisService',
   IAuthService: 'IAuthService',
+  IScheduleRepository: 'IScheduleRepository',
+  IScheduleService: 'IScheduleService',
 };
 
 export const CRUD_ACTION = {
@@ -20,3 +22,7 @@ export const PAGINATION = {
 };
 
 export const ROLES_KEY = 'roles';
+
+export interface IMessageResponse {
+  message: string;
+}

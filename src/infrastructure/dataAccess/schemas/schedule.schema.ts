@@ -15,16 +15,22 @@ export class Schedule extends BaseSchema {
   routeId: Types.ObjectId;
 
   @Prop({ required: true })
-  departureDateTime: Date;
+  departureDateTime: string;
 
   @Prop({ required: true })
-  arrivalDateTime: Date;
+  arrivalDateTime: string;
 
   @Prop({ required: true })
   price: number;
 
   @Prop({ required: true })
-  availableSeats: number;
+  seatLayout: string[];
+
+  @Prop({ required: true })
+  availableSeats: string[];
+
+  @Prop({ required: true })
+  bookedSeats: string[];
 }
 
 export const ScheduleSchema = SchemaFactory.createForClass(Schedule);
