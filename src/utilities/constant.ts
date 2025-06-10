@@ -8,6 +8,8 @@ export const TYPES = {
   IScheduleService: 'IScheduleService',
   IBusRepository: 'IBusRepository',
   IBusService: 'IBusService',
+  ILocationRepository: 'ILocationRepository',
+  ILocationService: 'ILocationService',
 };
 
 export const CRUD_ACTION = {
