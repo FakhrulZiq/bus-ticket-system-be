@@ -1,8 +1,4 @@
 import { PAGINATION } from 'src/utilities/constant';
-import {
-  IFindUserResponse,
-  IListUserInput,
-} from 'src/infrastructure/serviceInterfaces/user.service.interface';
 
 /**
  * Paginates the given data based on the provided filter object and total records.
@@ -12,11 +8,7 @@ import {
  * @param {number} total
  * @return {*}  {(IFindBookResponse | IBorrowedBookListResponse)}
  */
-export const pagination = (
-  data: any[],
-  inputObj: IListUserInput,
-  total: number,
-): IFindUserResponse => {
+export const pagination = (data: any[], inputObj: any, total: number): any => {
   const pageRecords = inputObj?.pageSize || PAGINATION?.defaultRecords;
   const page = inputObj?.pageNum;
   const totalPages = Math.ceil(total / pageRecords);
