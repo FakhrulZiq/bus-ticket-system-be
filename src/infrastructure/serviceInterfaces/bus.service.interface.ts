@@ -2,6 +2,7 @@ import { IMessageResponse } from 'src/utilities/constant';
 
 export interface IBusService {
   createBus(input: ICreateBusInput, email: string): Promise<ICreateBusResponse>;
+  listBus(input: IListBusInput): Promise<IFindBusResponse>;
 }
 
 export interface ICreateBusInput {
@@ -9,6 +10,30 @@ export interface ICreateBusInput {
   busType: string;
   totalSeats: number;
   operatorName: string;
+}
+
+export interface IListBusInput {
+  search?: string;
+  pageNum?: number;
+  pageSize?: number;
+}
+
+export interface IFindBusResponse {
+  data: IBusByID[];
+  startRecord: number;
+  endRecord: number;
+  total?: number;
+  pageSize?: number;
+  totalPages?: number;
+  nextPage?: number;
+}
+
+export interface IBusByID {
+  id: string;
+  operatorName: string;
+  plateNumber: string;
+  busType: string;
+  totalSeats: number;
 }
 
 export interface ICreateBusResponse extends IMessageResponse {}
