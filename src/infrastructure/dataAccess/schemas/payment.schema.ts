@@ -17,10 +17,13 @@ export class Payment extends BaseSchema {
   status: string;
 
   @Prop()
-  method: string; // 'FPX', 'CreditCard', 'Ewallet'
+  method: string;
 
   @Prop()
   transactionId: string;
+
+  @Prop({ type: String, default: null })
+  payementDate?: string;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

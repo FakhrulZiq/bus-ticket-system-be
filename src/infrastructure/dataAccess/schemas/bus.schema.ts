@@ -7,12 +7,12 @@ export type BusDocument = Bus & Document;
 @Schema({ timestamps: true })
 export class Bus extends BaseSchema {
   @Prop({ required: true })
-  busNumber: string;
-
-  @Prop({ required: true })
   plateNumber: string;
 
-  @Prop({ enum: ['Standard', 'Executive'], default: 'Standard' })
+  @Prop({
+    enum: ['Standard', 'Executive', 'Double Decker'],
+    default: 'Standard',
+  })
   busType: string;
 
   @Prop({ required: true })

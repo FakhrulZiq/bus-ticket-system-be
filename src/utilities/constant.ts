@@ -6,6 +6,8 @@ export const TYPES = {
   IAuthService: 'IAuthService',
   IScheduleRepository: 'IScheduleRepository',
   IScheduleService: 'IScheduleService',
+  IBusRepository: 'IBusRepository',
+  IBusService: 'IBusService',
 };
 
 export const CRUD_ACTION = {
