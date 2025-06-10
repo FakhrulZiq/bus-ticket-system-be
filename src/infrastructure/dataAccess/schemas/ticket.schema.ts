@@ -19,12 +19,6 @@ export class Ticket extends BaseSchema {
 
   @Prop({ default: 'BOOKED', enum: ['BOOKED', 'CANCELLED', 'COMPLETED'] })
   bookingStatus: string;
-
-  @Prop({ default: 'UNPAID', enum: ['PAID', 'UNPAID'] })
-  paymentStatus: string;
-
-  @Prop()
-  paymentMethod: string; // 'Online', 'Cash', etc.
 }
 
 export const TicketSchema = SchemaFactory.createForClass(Ticket);
