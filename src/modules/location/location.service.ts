@@ -12,10 +12,19 @@ import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateLocationInput,
   ICreateLocationResponse,
+  IFindLocationResponse,
+  IListLocationInput,
   ILocationService,
 } from 'src/infrastructure/serviceInterfaces/location.service.interfac';
 
-import { CRUD_ACTION, TYPES } from 'src/utilities/constant';
+import {
+  CRUD_ACTION,
+  DEFAULT_CACHE_TIME_TO_LIVE,
+  PAGINATION,
+  TYPES,
+} from 'src/utilities/constant';
+import { LocationParser } from './location.parser';
+import { pagination } from 'src/utilities/utility';
 
 @Injectable()
 export class LocationService implements ILocationService {
@@ -60,6 +69,54 @@ export class LocationService implements ILocationService {
       this._logger.error(error.message, error);
       throw error;
     }
+  }
+
+  async listLocation(
+    input: IListLocationInput,
+  ): Promise<IFindLocationResponse> {
+    try {
+      const { pageNum, pageSize, search } = input;
+
+      const defaultPageSize = PAGINATION.defaultRecords;
+      input.pageSize = pageSize ?? defaultPageSize;
+
+      const cacheKey = `list_Location_page${pageNum}_limit${pageSize}_searchBy${search}`;
+
+      const cachedData = await this._getCachedData(cacheKey);
+
+      if (cachedData && !input.search) {
+        return cachedData;
+      }
+      const Locations =
+        await this._locationRepository.listLocationByPagination(input);
+
+      const parsedLocation = LocationParser.listLocation(Locations.data);
+
+      const paginatedBook: IFindLocationResponse = pagination(
+        parsedLocation,
+        input,
+        Locations.total,
+      ) as unknown as IFindLocationResponse;
+
+      await this._cacheResponse(paginatedBook, cacheKey);
+
+      return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  private async _getCachedData(cacheKey: string): Promise<any> {
+    return (await this._redisCacheService.get(cacheKey)) as any;
+  }
+
+  private async _cacheResponse(data: any, cacheKey: string): Promise<void> {
+    await this._redisCacheService.set(
+      cacheKey,
+      data,
+      DEFAULT_CACHE_TIME_TO_LIVE,
+    );
   }
 
   private async _deleteLocationPageCache(): Promise<void> {

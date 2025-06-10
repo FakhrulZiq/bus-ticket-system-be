@@ -8,5 +8,16 @@ export class CreateLocationInput {
   terminal: string;
 
   @ApiProperty()
-  shortFrom: string;
+  shortForm: string;
+}
+
+export class ListLocationInput {
+  @ApiProperty()
+  search?: string;
+
+  @ApiProperty()
+  pageNum?: number;
+
+  @ApiProperty()
+  pageSize?: number;
 }

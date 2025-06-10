@@ -13,7 +13,7 @@ export class Location extends BaseSchema {
   terminal: string;
 
   @Prop({ required: true })
-  shortFrom: string;
+  shortForm: string;
 }
 
 export const LocationSchema = SchemaFactory.createForClass(Location);

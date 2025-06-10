@@ -42,7 +42,7 @@ export class UserController {
     return this._userService.createUser(input);
   }
 
-  @Post('listUser')
+  @Post('list')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'List all user' })
