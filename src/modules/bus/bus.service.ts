@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
@@ -15,6 +16,7 @@ import {
   IBusService,
   ICreateBusInput,
   ICreateBusResponse,
+  IDeleteBusResponse,
   IFindBusResponse,
   IListBusInput,
 } from 'src/infrastructure/serviceInterfaces/bus.service.interface';
@@ -115,6 +117,35 @@ export class BusService implements IBusService {
       const busById = BusParser.busById(bus);
 
       return busById;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async deleteBus(id: string, email: string): Promise<IDeleteBusResponse> {
+    try {
+      const user = await this._busRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException('Bus not found');
+      }
+
+      const deleteAuditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.delete,
+      );
+
+      const deleteUser = await this._busRepository.update(
+        { id },
+        { ...deleteAuditProps },
+      );
+      if (!deleteUser) {
+        throw new InternalServerErrorException(`Failed to delete bus`);
+      }
+
+      await this._deleteBusPageCache();
+
+      return { message: 'Bus deleted successfully!' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

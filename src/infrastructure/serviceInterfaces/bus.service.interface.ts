@@ -4,6 +4,7 @@ export interface IBusService {
   createBus(input: ICreateBusInput, email: string): Promise<ICreateBusResponse>;
   listBus(input: IListBusInput): Promise<IFindBusResponse>;
   findBusById(id: string): Promise<IBusByID>;
+  deleteBus(id: string, email: string): Promise<IDeleteBusResponse>;
 }
 
 export interface ICreateBusInput {
@@ -38,3 +39,5 @@ export interface IBusByID {
 }
 
 export interface ICreateBusResponse extends IMessageResponse {}
+
+export interface IDeleteBusResponse extends IMessageResponse {}
