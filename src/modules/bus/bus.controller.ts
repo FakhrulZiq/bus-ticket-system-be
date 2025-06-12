@@ -1,4 +1,13 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { IBusService } from 'src/infrastructure/serviceInterfaces/Bus.service.interface';
 import { TYPES } from 'src/utilities/constant';
@@ -6,7 +15,11 @@ import { JwtAuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { CreateBusInput, ListBusInput } from './dto/bus.input.dto';
-import { CreateBusResponse, FindBusResponse } from './dto/bus.output.dto';
+import {
+  BusByIdResponse,
+  CreateBusResponse,
+  FindBusResponse,
+} from './dto/bus.output.dto';
 
 @Controller('bus')
 export class BusController {
@@ -33,5 +46,12 @@ export class BusController {
   @ApiOperation({ summary: 'List all Bus' })
   async listBus(@Body() input: ListBusInput): Promise<FindBusResponse> {
     return this._busService.listBus(input);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by ID' })
+  getUser(@Param('id') id: string): Promise<BusByIdResponse> {
+    return this._busService.findBusById(id);
   }
 }
