@@ -3,6 +3,7 @@ import { IMessageResponse } from 'src/utilities/constant';
 export interface IBusService {
   createBus(input: ICreateBusInput, email: string): Promise<ICreateBusResponse>;
   listBus(input: IListBusInput): Promise<IFindBusResponse>;
+  findBusById(id: string): Promise<IBusByID>;
 }
 
 export interface ICreateBusInput {

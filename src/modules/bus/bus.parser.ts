@@ -16,7 +16,7 @@ export class BusParser {
     return data;
   }
 
-  static BusById(Bus: Bus): IBusByID {
+  static busById(Bus: Bus): IBusByID {
     const { id, plateNumber, busType, totalSeats, operatorName } = Bus;
     return {
       id,

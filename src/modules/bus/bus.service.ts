@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
 import { IBusRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/bus.repository.interface';
@@ -10,6 +11,7 @@ import { IContextAwareLogger } from 'src/infrastructure/logger';
 import { IRedisService } from 'src/infrastructure/redis/redisInterface';
 import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
+  IBusByID,
   IBusService,
   ICreateBusInput,
   ICreateBusResponse,
@@ -97,6 +99,22 @@ export class BusService implements IBusService {
       await this._cacheResponse(paginatedBook, cacheKey);
 
       return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async findBusById(id: string): Promise<IBusByID> {
+    try {
+      const bus = await this._busRepository.findOne({ id });
+      if (!bus) {
+        throw new NotFoundException(`Bus with ID ${id} not found`);
+      }
+
+      const busById = BusParser.busById(bus);
+
+      return busById;
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
