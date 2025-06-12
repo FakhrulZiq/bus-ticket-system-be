@@ -13,3 +13,14 @@ export class CreateBusInput {
   @ApiProperty()
   operatorName: string;
 }
+
+export class ListBusInput {
+  @ApiProperty()
+  search?: string;
+
+  @ApiProperty()
+  pageNum?: number;
+
+  @ApiProperty()
+  pageSize?: number;
+}

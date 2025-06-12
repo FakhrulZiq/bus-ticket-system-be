@@ -13,9 +13,18 @@ import {
   IBusService,
   ICreateBusInput,
   ICreateBusResponse,
+  IFindBusResponse,
+  IListBusInput,
 } from 'src/infrastructure/serviceInterfaces/bus.service.interface';
 
-import { CRUD_ACTION, TYPES } from 'src/utilities/constant';
+import {
+  CRUD_ACTION,
+  DEFAULT_CACHE_TIME_TO_LIVE,
+  PAGINATION,
+  TYPES,
+} from 'src/utilities/constant';
+import { pagination } from 'src/utilities/utility';
+import { BusParser } from './bus.parser';
 
 @Injectable()
 export class BusService implements IBusService {
@@ -59,6 +68,51 @@ export class BusService implements IBusService {
       this._logger.error(error.message, error);
       throw error;
     }
+  }
+
+  async listBus(input: IListBusInput): Promise<IFindBusResponse> {
+    try {
+      const { pageNum, pageSize, search } = input;
+
+      const defaultPageSize = PAGINATION.defaultRecords;
+      input.pageSize = pageSize ?? defaultPageSize;
+
+      const cacheKey = `list_Bus_page${pageNum}_limit${pageSize}_searchBy${search}`;
+
+      const cachedData = await this._getCachedData(cacheKey);
+
+      if (cachedData && !input.search) {
+        return cachedData;
+      }
+      const Buss = await this._busRepository.listBusByPagination(input);
+
+      const parsedBus = BusParser.listBus(Buss.data);
+
+      const paginatedBook: IFindBusResponse = pagination(
+        parsedBus,
+        input,
+        Buss.total,
+      ) as unknown as IFindBusResponse;
+
+      await this._cacheResponse(paginatedBook, cacheKey);
+
+      return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  private async _getCachedData(cacheKey: string): Promise<any> {
+    return (await this._redisCacheService.get(cacheKey)) as any;
+  }
+
+  private async _cacheResponse(data: any, cacheKey: string): Promise<void> {
+    await this._redisCacheService.set(
+      cacheKey,
+      data,
+      DEFAULT_CACHE_TIME_TO_LIVE,
+    );
   }
 
   private async _deleteBusPageCache(): Promise<void> {
