@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -18,6 +19,7 @@ import { CreateBusInput, ListBusInput } from './dto/bus.input.dto';
 import {
   BusByIdResponse,
   CreateBusResponse,
+  DeleteBusResponse,
   FindBusResponse,
 } from './dto/bus.output.dto';
 
@@ -53,5 +55,14 @@ export class BusController {
   @ApiOperation({ summary: 'Get user by ID' })
   getUser(@Param('id') id: string): Promise<BusByIdResponse> {
     return this._busService.findBusById(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete User by ID' })
+  deleteUser(@Param('id') id: string, @Req() req): Promise<DeleteBusResponse> {
+    const email = req.user.email;
+    return this._busService.deleteBus(id, email);
   }
 }

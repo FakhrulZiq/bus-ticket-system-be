@@ -5,6 +5,8 @@ export class CreateBusResponse {
   message: string;
 }
 
+export class DeleteBusResponse extends CreateBusResponse {}
+
 export class FindBusResponse {
   @ApiProperty()
   data: BusByIdResponse[];
