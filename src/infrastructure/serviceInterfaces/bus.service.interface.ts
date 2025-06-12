@@ -5,6 +5,11 @@ export interface IBusService {
   listBus(input: IListBusInput): Promise<IFindBusResponse>;
   findBusById(id: string): Promise<IBusByID>;
   deleteBus(id: string, email: string): Promise<IDeleteBusResponse>;
+  updateBus(
+    id: string,
+    input: IUpdateBusInput,
+    email: string,
+  ): Promise<IBusByID>;
 }
 
 export interface ICreateBusInput {
@@ -32,6 +37,13 @@ export interface IFindBusResponse {
 
 export interface IBusByID {
   id: string;
+  operatorName: string;
+  plateNumber: string;
+  busType: string;
+  totalSeats: number;
+}
+
+export interface IUpdateBusInput {
   operatorName: string;
   plateNumber: string;
   busType: string;
