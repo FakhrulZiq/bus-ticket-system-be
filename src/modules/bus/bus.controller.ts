@@ -6,6 +6,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,7 +16,11 @@ import { TYPES } from 'src/utilities/constant';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { CreateBusInput, ListBusInput } from './dto/bus.input.dto';
+import {
+  CreateBusInput,
+  ListBusInput,
+  UpdateBusInput,
+} from './dto/bus.input.dto';
 import {
   BusByIdResponse,
   CreateBusResponse,
@@ -64,5 +69,17 @@ export class BusController {
   deleteUser(@Param('id') id: string, @Req() req): Promise<DeleteBusResponse> {
     const email = req.user.email;
     return this._busService.deleteBus(id, email);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user' })
+  async updateUser(
+    @Param('id') id: string,
+    @Body() input: UpdateBusInput,
+    @Req() req,
+  ): Promise<BusByIdResponse> {
+    const email = req.user.email;
+    return await this._busService.updateBus(id, input, email);
   }
 }

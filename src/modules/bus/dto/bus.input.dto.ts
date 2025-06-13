@@ -24,3 +24,17 @@ export class ListBusInput {
   @ApiProperty()
   pageSize?: number;
 }
+
+export class UpdateBusInput {
+  @ApiProperty()
+  operatorName: string;
+
+  @ApiProperty()
+  plateNumber: string;
+
+  @ApiProperty()
+  busType: string;
+
+  @ApiProperty()
+  totalSeats: number;
+}

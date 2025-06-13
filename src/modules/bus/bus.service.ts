@@ -19,6 +19,7 @@ import {
   IDeleteBusResponse,
   IFindBusResponse,
   IListBusInput,
+  IUpdateBusInput,
 } from 'src/infrastructure/serviceInterfaces/bus.service.interface';
 
 import {
@@ -146,6 +147,39 @@ export class BusService implements IBusService {
       await this._deleteBusPageCache();
 
       return { message: 'Bus deleted successfully!' };
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async updateBus(
+    id: string,
+    input: IUpdateBusInput,
+    email: string,
+  ): Promise<IBusByID> {
+    try {
+      const user = await this._busRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException(`There is no bus with ID ${id}`);
+      }
+
+      const auditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.update,
+      );
+
+      const busUpdate = await this._busRepository.update(
+        { id },
+        { ...auditProps, ...input },
+      );
+      if (!busUpdate) {
+        throw new InternalServerErrorException(`Failed to update bus`);
+      }
+
+      await this._deleteBusPageCache();
+
+      return BusParser.busById(busUpdate);
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
