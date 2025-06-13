@@ -15,7 +15,7 @@ export class LocationParser {
     return data;
   }
 
-  static LocationById(Location: Location): ILocationByID {
+  static locationById(Location: Location): ILocationByID {
     const { id, state, terminal, shortForm } = Location;
     return {
       id,

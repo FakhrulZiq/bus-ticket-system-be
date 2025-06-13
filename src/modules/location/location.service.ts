@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
 import { ILocationRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/location.repository.interfac';
@@ -14,6 +15,7 @@ import {
   ICreateLocationResponse,
   IFindLocationResponse,
   IListLocationInput,
+  ILocationByID,
   ILocationService,
 } from 'src/infrastructure/serviceInterfaces/location.service.interfac';
 
@@ -101,6 +103,22 @@ export class LocationService implements ILocationService {
       await this._cacheResponse(paginatedBook, cacheKey);
 
       return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async findLocationById(id: string): Promise<ILocationByID> {
+    try {
+      const location = await this._locationRepository.findOne({ id });
+      if (!location) {
+        throw new NotFoundException(`location with ID ${id} not found`);
+      }
+
+      const locationById = LocationParser.locationById(location);
+
+      return locationById;
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

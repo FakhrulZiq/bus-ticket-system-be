@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { TYPES } from 'src/utilities/constant';
 import { JwtAuthGuard } from '../auth/auth.guard';
@@ -12,6 +12,7 @@ import {
 import {
   CreateLocationResponse,
   FindLocationResponse,
+  LocationByIdResponse,
 } from './dto/location.output.dto';
 
 @Controller('location')
@@ -41,5 +42,12 @@ export class LocationController {
     @Body() input: ListLocationInput,
   ): Promise<FindLocationResponse> {
     return this._locationService.listLocation(input);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by ID' })
+  getUser(@Param('id') id: string): Promise<LocationByIdResponse> {
+    return this._locationService.findLocationById(id);
   }
 }
