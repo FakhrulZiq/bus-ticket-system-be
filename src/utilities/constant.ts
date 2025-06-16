@@ -10,6 +10,8 @@ export const TYPES = {
   IBusService: 'IBusService',
   ILocationRepository: 'ILocationRepository',
   ILocationService: 'ILocationService',
+  IRouteRepository: 'IRouteRepository',
+  IRouteService: 'IRouteService',
 };
 
 export const CRUD_ACTION = {
