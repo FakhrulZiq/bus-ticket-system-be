@@ -11,6 +11,8 @@ export class CreateLocationInput {
   shortForm: string;
 }
 
+export class UpdateLocationInput extends CreateLocationInput {}
+
 export class ListLocationInput {
   @ApiProperty()
   search?: string;

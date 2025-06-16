@@ -19,6 +19,7 @@ import {
   IListLocationInput,
   ILocationByID,
   ILocationService,
+  IUpdateLocationInput,
 } from 'src/infrastructure/serviceInterfaces/location.service.interfac';
 
 import {
@@ -153,6 +154,39 @@ export class LocationService implements ILocationService {
       await this._deleteLocationPageCache();
 
       return { message: 'Location deleted successfully!' };
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async updateLocation(
+    id: string,
+    input: IUpdateLocationInput,
+    email: string,
+  ): Promise<ILocationByID> {
+    try {
+      const user = await this._locationRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException(`There is no Location with ID ${id}`);
+      }
+
+      const auditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.update,
+      );
+
+      const LocationUpdate = await this._locationRepository.update(
+        { id },
+        { ...auditProps, ...input },
+      );
+      if (!LocationUpdate) {
+        throw new InternalServerErrorException(`Failed to update Location`);
+      }
+
+      await this._deleteLocationPageCache();
+
+      return LocationParser.locationById(LocationUpdate);
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

@@ -6,6 +6,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { ILocationService } from 'src/infrastructure/serviceInterfaces/location.
 import {
   CreateLocationInput,
   ListLocationInput,
+  UpdateLocationInput,
 } from './dto/location.input.dto';
 import {
   CreateLocationResponse,
@@ -72,5 +74,17 @@ export class LocationController {
   ): Promise<DeleteLocationResponse> {
     const email = req.user.email;
     return this._locationService.deleteLocation(id, email);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update Location' })
+  async updateBus(
+    @Param('id') id: string,
+    @Body() input: UpdateLocationInput,
+    @Req() req,
+  ): Promise<LocationByIdResponse> {
+    const email = req.user.email;
+    return await this._locationService.updateLocation(id, input, email);
   }
 }
