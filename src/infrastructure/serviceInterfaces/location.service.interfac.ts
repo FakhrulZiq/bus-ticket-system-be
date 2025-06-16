@@ -6,6 +6,7 @@ export interface ILocationService {
     email: string,
   ): Promise<ICreateLocationResponse>;
   listLocation(input: IListLocationInput): Promise<IFindLocationResponse>;
+  findLocationById(id: string): Promise<ILocationByID>;
 }
 
 export interface ICreateLocationInput {
