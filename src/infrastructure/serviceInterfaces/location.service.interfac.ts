@@ -8,6 +8,11 @@ export interface ILocationService {
   listLocation(input: IListLocationInput): Promise<IFindLocationResponse>;
   findLocationById(id: string): Promise<ILocationByID>;
   deleteLocation(id: string, email: string): Promise<IDeleteLocationResponse>;
+  updateLocation(
+    id: string,
+    input: IUpdateLocationInput,
+    email: string,
+  ): Promise<ILocationByID>;
 }
 
 export interface ICreateLocationInput {
@@ -34,6 +39,12 @@ export interface IFindLocationResponse {
 
 export interface ILocationByID {
   id: string;
+  state: string;
+  terminal: string;
+  shortForm: string;
+}
+
+export interface IUpdateLocationInput {
   state: string;
   terminal: string;
   shortForm: string;
