@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ScheduleModule } from './modules/schedule/schedule.module';
 import { BusModule } from './modules/bus/bus.module';
 import { LocationModule } from './modules/location/location.module';
+import { RouteModule } from './modules/routes/route.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LocationModule } from './modules/location/location.module';
     ScheduleModule,
     BusModule,
     LocationModule,
+    RouteModule,
   ],
 })
 export class AppModule {}
