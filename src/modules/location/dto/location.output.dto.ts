@@ -5,6 +5,8 @@ export class CreateLocationResponse {
   message: string;
 }
 
+export class DeleteLocationResponse extends CreateLocationResponse {}
+
 export class FindLocationResponse {
   @ApiProperty()
   data: LocationByIdResponse[];

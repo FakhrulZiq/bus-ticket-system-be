@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
@@ -13,6 +14,7 @@ import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateLocationInput,
   ICreateLocationResponse,
+  IDeleteLocationResponse,
   IFindLocationResponse,
   IListLocationInput,
   ILocationByID,
@@ -119,6 +121,38 @@ export class LocationService implements ILocationService {
       const locationById = LocationParser.locationById(location);
 
       return locationById;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async deleteLocation(
+    id: string,
+    email: string,
+  ): Promise<IDeleteLocationResponse> {
+    try {
+      const user = await this._locationRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException('Location not found');
+      }
+
+      const deleteAuditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.delete,
+      );
+
+      const deleteUser = await this._locationRepository.update(
+        { id },
+        { ...deleteAuditProps },
+      );
+      if (!deleteUser) {
+        throw new InternalServerErrorException(`Failed to delete Location`);
+      }
+
+      await this._deleteLocationPageCache();
+
+      return { message: 'Location deleted successfully!' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

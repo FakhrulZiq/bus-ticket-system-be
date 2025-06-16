@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { TYPES } from 'src/utilities/constant';
 import { JwtAuthGuard } from '../auth/auth.guard';
@@ -11,6 +21,7 @@ import {
 } from './dto/location.input.dto';
 import {
   CreateLocationResponse,
+  DeleteLocationResponse,
   FindLocationResponse,
   LocationByIdResponse,
 } from './dto/location.output.dto';
@@ -26,7 +37,7 @@ export class LocationController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Register a new location' })
-  createUser(
+  createLocation(
     @Body() input: CreateLocationInput,
     @Req() req,
   ): Promise<CreateLocationResponse> {
@@ -46,8 +57,20 @@ export class LocationController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get user by ID' })
-  getUser(@Param('id') id: string): Promise<LocationByIdResponse> {
+  @ApiOperation({ summary: 'Get Location by ID' })
+  getLocation(@Param('id') id: string): Promise<LocationByIdResponse> {
     return this._locationService.findLocationById(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete Location by ID' })
+  deleteLocation(
+    @Param('id') id: string,
+    @Req() req,
+  ): Promise<DeleteLocationResponse> {
+    const email = req.user.email;
+    return this._locationService.deleteLocation(id, email);
   }
 }

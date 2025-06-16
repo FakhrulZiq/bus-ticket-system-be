@@ -39,7 +39,7 @@ export class BusController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Register a new Bus' })
-  createUser(
+  createBus(
     @Body() input: CreateBusInput,
     @Req() req,
   ): Promise<CreateBusResponse> {
@@ -57,24 +57,24 @@ export class BusController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get user by ID' })
-  getUser(@Param('id') id: string): Promise<BusByIdResponse> {
+  @ApiOperation({ summary: 'Get Bus by ID' })
+  getBus(@Param('id') id: string): Promise<BusByIdResponse> {
     return this._busService.findBusById(id);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  @ApiOperation({ summary: 'Delete User by ID' })
-  deleteUser(@Param('id') id: string, @Req() req): Promise<DeleteBusResponse> {
+  @ApiOperation({ summary: 'Delete Bus by ID' })
+  deleteBus(@Param('id') id: string, @Req() req): Promise<DeleteBusResponse> {
     const email = req.user.email;
     return this._busService.deleteBus(id, email);
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update user' })
-  async updateUser(
+  @ApiOperation({ summary: 'Update Bus' })
+  async updateBus(
     @Param('id') id: string,
     @Body() input: UpdateBusInput,
     @Req() req,
