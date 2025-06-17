@@ -8,10 +8,10 @@ export type RouteDocument = Route & Document;
 @Schema({ timestamps: true })
 export class Route extends BaseSchema {
   @Prop({ type: Types.ObjectId, ref: Location.name, required: true })
-  departure: Types.ObjectId;
+  departure: string;
 
   @Prop({ type: Types.ObjectId, ref: Location.name, required: true })
-  destination: Types.ObjectId;
+  destination: string;
 
   @Prop()
   distanceKm: number;
