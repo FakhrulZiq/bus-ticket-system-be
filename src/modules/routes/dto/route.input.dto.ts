@@ -13,3 +13,14 @@ export class CreateRouteInput {
   @ApiProperty()
   estimatedTime: string;
 }
+
+export class ListRouteInput {
+  @ApiProperty()
+  search?: string;
+
+  @ApiProperty()
+  pageNum?: number;
+
+  @ApiProperty()
+  pageSize?: number;
+}

@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
 import { ILocationRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/location.repository.interfac';
-import { IRouteRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/route.repository.interface';
+import {
+  IListRouteByPaginationResponse,
+  IRouteRepository,
+} from 'src/infrastructure/dataAccess/repositories/interfaces/route.repository.interface';
 import { LocationDocument } from 'src/infrastructure/dataAccess/schemas/location.schema';
 import { RouteDocument } from 'src/infrastructure/dataAccess/schemas/route.schema';
 import { IContextAwareLogger } from 'src/infrastructure/logger';
@@ -16,9 +19,18 @@ import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateRouteInput,
   ICreateRouteResponse,
+  IFindRouteResponse,
+  IListRouteInput,
   IRouteService,
 } from 'src/infrastructure/serviceInterfaces/route.service.interface';
-import { CRUD_ACTION, TYPES } from 'src/utilities/constant';
+import {
+  CRUD_ACTION,
+  DEFAULT_CACHE_TIME_TO_LIVE,
+  PAGINATION,
+  TYPES,
+} from 'src/utilities/constant';
+import { pagination } from 'src/utilities/utility';
+import { RouteParser } from './route.parser';
 
 @Injectable()
 export class RouteService implements IRouteService {
@@ -84,8 +96,54 @@ export class RouteService implements IRouteService {
     }
   }
 
+  async listRoute(input: IListRouteInput): Promise<IFindRouteResponse> {
+    try {
+      const { pageNum, pageSize, search } = input;
+
+      const defaultPageSize = PAGINATION.defaultRecords;
+      input.pageSize = pageSize ?? defaultPageSize;
+
+      const cacheKey = `list_route_page${pageNum}_limit${pageSize}_searchBy${search}`;
+
+      const cachedData = await this._getCachedData(cacheKey);
+
+      if (cachedData && !input.search) {
+        return cachedData;
+      }
+      const routes: IListRouteByPaginationResponse =
+        await this._routeRepository.listRouteByPagination(input);
+
+      const parsedRoute = RouteParser.listRoute(routes.data);
+
+      const paginatedBook: IFindRouteResponse = pagination(
+        parsedRoute,
+        input,
+        routes.total,
+      ) as unknown as IFindRouteResponse;
+
+      await this._cacheResponse(paginatedBook, cacheKey);
+
+      return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  private async _getCachedData(cacheKey: string): Promise<any> {
+    return (await this._redisCacheService.get(cacheKey)) as any;
+  }
+
+  private async _cacheResponse(data: any, cacheKey: string): Promise<void> {
+    await this._redisCacheService.set(
+      cacheKey,
+      data,
+      DEFAULT_CACHE_TIME_TO_LIVE,
+    );
+  }
+
   private async _deleteRoutePageCache(): Promise<void> {
-    const keys = await this._redisCacheService.keys('*list_Location_page*');
+    const keys = await this._redisCacheService.keys('*list_route_page*');
     if (keys.length > 0) {
       await this._redisCacheService.deleteMany(keys);
     }
