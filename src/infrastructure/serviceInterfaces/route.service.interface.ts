@@ -6,6 +6,7 @@ export interface IRouteService {
     email: string,
   ): Promise<ICreateRouteResponse>;
   listRoute(input: IListRouteInput): Promise<IFindRouteResponse>;
+  findRouteById(id: string): Promise<IRouteByID>;
 }
 
 export interface ICreateRouteInput {

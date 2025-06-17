@@ -11,6 +11,7 @@ export interface IRouteRepository
   listRouteByPagination(
     input: IListRouteInput,
   ): Promise<IListRouteByPaginationResponse>;
+  getRouteByID(id: string): Promise<IRouteList>;
 }
 
 export interface IListRouteByPaginationResponse {

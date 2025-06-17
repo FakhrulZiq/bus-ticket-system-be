@@ -21,6 +21,7 @@ import {
   ICreateRouteResponse,
   IFindRouteResponse,
   IListRouteInput,
+  IRouteByID,
   IRouteService,
 } from 'src/infrastructure/serviceInterfaces/route.service.interface';
 import {
@@ -124,6 +125,22 @@ export class RouteService implements IRouteService {
       await this._cacheResponse(paginatedBook, cacheKey);
 
       return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async findRouteById(id: string): Promise<IRouteByID> {
+    try {
+      const route = await this._routeRepository.getRouteByID(id);
+      if (!route) {
+        throw new NotFoundException(`Route with ID ${id} not found`);
+      }
+
+      const RouteById = RouteParser.routeById(route);
+
+      return RouteById;
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

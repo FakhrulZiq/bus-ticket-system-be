@@ -1,12 +1,25 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { IRouteService } from 'src/infrastructure/serviceInterfaces/Route.service.interface';
 import { TYPES } from 'src/utilities/constant';
 import { JwtAuthGuard } from '../auth/auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { ApiOperation } from '@nestjs/swagger';
+import { RolesGuard } from '../auth/roles.guard';
 import { CreateRouteInput, ListRouteInput } from './dto/route.input.dto';
-import { CreateRouteResponse, FindRouteResponse } from './dto/route.output.dto';
+import {
+  CreateRouteResponse,
+  FindRouteResponse,
+  RouteByIdResponse,
+} from './dto/route.output.dto';
 
 @Controller('routes')
 export class RouteController {
@@ -33,5 +46,12 @@ export class RouteController {
   @ApiOperation({ summary: 'List all Route' })
   listRoute(@Body() input: ListRouteInput): Promise<FindRouteResponse> {
     return this._routeService.listRoute(input);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get Route by ID' })
+  getRoute(@Param('id') id: string): Promise<RouteByIdResponse> {
+    return this._routeService.findRouteById(id);
   }
 }

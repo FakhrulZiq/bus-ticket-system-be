@@ -9,6 +9,7 @@ import { Route, RouteDocument } from '../schemas/Route.schema';
 import { GenericRepository } from './generic.repository';
 import {
   IListRouteByPaginationResponse,
+  IRouteList,
   IRouteRepository,
 } from './interfaces/Route.repository.interface';
 
@@ -134,6 +135,78 @@ export class RouteRepository
         data: routes,
         total,
       };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getRouteByID(id: string): Promise<IRouteList> {
+    try {
+      const route = await this._routeModel
+        .aggregate([
+          { $match: { id, deletedAt: null } },
+          {
+            $lookup: {
+              from: 'locations',
+              let: { departureId: '$departure' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$id', '$$departureId'] },
+                    deletedAt: null,
+                  },
+                },
+                { $limit: 1 },
+              ],
+              as: 'departureDetails',
+            },
+          },
+          {
+            $lookup: {
+              from: 'locations',
+              let: { destinationId: '$destination' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$id', '$$destinationId'] },
+                    deletedAt: null,
+                  },
+                },
+                { $limit: 1 },
+              ],
+              as: 'destinationDetails',
+            },
+          },
+          { $unwind: '$departureDetails' },
+          { $unwind: '$destinationDetails' },
+          {
+            $project: {
+              id: 1,
+              distanceKm: 1,
+              estimatedTime: 1,
+              departure: 1,
+              destination: 1,
+              departureDetails: {
+                id: '$departureDetails.id',
+                state: '$departureDetails.state',
+                terminal: '$departureDetails.terminal',
+                shortForm: '$departureDetails.shortForm',
+              },
+              destinationDetails: {
+                id: '$destinationDetails.id',
+                state: '$destinationDetails.state',
+                terminal: '$destinationDetails.terminal',
+                shortForm: '$destinationDetails.shortForm',
+              },
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          },
+          { $limit: 1 },
+        ])
+        .exec();
+
+      return route[0] as IRouteList;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
