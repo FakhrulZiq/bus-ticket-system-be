@@ -5,6 +5,8 @@ export class CreateRouteResponse {
   message: string;
 }
 
+export class DeleteRouteResponse extends CreateRouteResponse {}
+
 export class FindRouteResponse {
   @ApiProperty()
   data: RouteByIdResponse[];

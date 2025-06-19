@@ -30,6 +30,7 @@ export class RouteRepository
       const isDuplicate = await this._routeModel.findOne({
         departure: input.departure,
         destination: input.destination,
+        deletedAt: null,
       });
 
       return !!isDuplicate;
