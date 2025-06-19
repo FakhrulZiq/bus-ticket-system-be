@@ -166,8 +166,8 @@ export class LocationService implements ILocationService {
     email: string,
   ): Promise<ILocationByID> {
     try {
-      const user = await this._locationRepository.findOne({ id });
-      if (!user) {
+      const route = await this._locationRepository.findOne({ id });
+      if (!route) {
         throw new NotFoundException(`There is no Location with ID ${id}`);
       }
 

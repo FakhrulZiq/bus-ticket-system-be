@@ -14,6 +14,8 @@ export class CreateRouteInput {
   estimatedTime: string;
 }
 
+export class UpdateRouteInput extends CreateRouteInput {}
+
 export class ListRouteInput {
   @ApiProperty()
   search?: string;
