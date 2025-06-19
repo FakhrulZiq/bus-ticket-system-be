@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RouteRepository } from 'src/infrastructure/dataAccess/repositories/Route.repository';
+import { LocationRepository } from 'src/infrastructure/dataAccess/repositories/Location.repository';
+import { RouteRepository } from 'src/infrastructure/dataAccess/repositories/routes.repository';
+import {
+  Location,
+  LocationSchema,
+} from 'src/infrastructure/dataAccess/schemas/location.schema';
 import {
   Route,
   RouteSchema,
@@ -11,11 +16,6 @@ import { RedisCacheService } from 'src/infrastructure/redis/redisService';
 import { TYPES } from 'src/utilities/constant';
 import { RouteController } from './route.controller';
 import { RouteService } from './Route.service';
-import { LocationRepository } from 'src/infrastructure/dataAccess/repositories/Location.repository';
-import {
-  Location,
-  LocationSchema,
-} from 'src/infrastructure/dataAccess/schemas/location.schema';
 
 @Module({
   imports: [
