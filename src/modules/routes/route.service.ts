@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
@@ -23,6 +24,7 @@ import {
   IListRouteInput,
   IRouteByID,
   IRouteService,
+  IUpdateRouteInput,
 } from 'src/infrastructure/serviceInterfaces/route.service.interface';
 import {
   CRUD_ACTION,
@@ -141,6 +143,43 @@ export class RouteService implements IRouteService {
       const RouteById = RouteParser.routeById(route);
 
       return RouteById;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async updateRoute(
+    id: string,
+    input: IUpdateRouteInput,
+    email: string,
+  ): Promise<IRouteByID> {
+    try {
+      const route = await this._routeRepository.findOne({ id });
+      if (!route) {
+        throw new NotFoundException(`There is no Route with ID ${id}`);
+      }
+
+      const auditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.update,
+      );
+
+      const routeUpdate = await this._routeRepository.update(
+        { id },
+        { ...auditProps, ...input },
+      );
+      if (!routeUpdate) {
+        throw new InternalServerErrorException(`Failed to update Route`);
+      }
+
+      await this._deleteRoutePageCache();
+
+      const routeResponse = await this._routeRepository.getRouteByID(
+        routeUpdate.id,
+      );
+
+      return RouteParser.routeById(routeResponse);
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

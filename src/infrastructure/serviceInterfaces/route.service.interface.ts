@@ -7,6 +7,11 @@ export interface IRouteService {
   ): Promise<ICreateRouteResponse>;
   listRoute(input: IListRouteInput): Promise<IFindRouteResponse>;
   findRouteById(id: string): Promise<IRouteByID>;
+  updateRoute(
+    id: string,
+    input: IUpdateRouteInput,
+    email: string,
+  ): Promise<IRouteByID>;
 }
 
 export interface ICreateRouteInput {
@@ -40,5 +45,7 @@ export interface IRouteByID {
   distanceKm: number;
   estimatedTime: string;
 }
+
+export interface IUpdateRouteInput extends ICreateRouteInput {}
 
 export interface ICreateRouteResponse extends IMessageResponse {}
