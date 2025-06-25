@@ -5,6 +5,7 @@ import {
   ICreateRouteInput,
   IListRouteInput,
 } from 'src/infrastructure/serviceInterfaces/Route.service.interface';
+import { Location, LocationDocument } from '../schemas/location.schema';
 import { Route, RouteDocument } from '../schemas/Route.schema';
 import { GenericRepository } from './generic.repository';
 import {
@@ -21,6 +22,8 @@ export class RouteRepository
   constructor(
     @InjectModel(Route.name)
     private readonly _routeModel: Model<RouteDocument>,
+    @InjectModel(Location.name)
+    private readonly _locationModel: Model<LocationDocument>,
   ) {
     super(_routeModel);
   }
@@ -30,6 +33,7 @@ export class RouteRepository
       const isDuplicate = await this._routeModel.findOne({
         departure: input.departure,
         destination: input.destination,
+        deletedAt: null,
       });
 
       return !!isDuplicate;
@@ -53,13 +57,23 @@ export class RouteRepository
 
       if (search) {
         const regex = new RegExp(search, 'i');
+        const matchingLocations = await this._locationModel
+          .find({
+            $or: [
+              { state: { $regex: regex } },
+              { terminal: { $regex: regex } },
+              { shortForm: { $regex: regex } },
+            ],
+            deletedAt: null,
+          })
+          .select('id')
+          .lean();
+
+        const locationIds = matchingLocations.map((loc) => loc.id);
+
         filter.$or = [
-          { 'departureDetails.state': { $regex: regex } },
-          { 'departureDetails.terminal': { $regex: regex } },
-          { 'departureDetails.shortForm': { $regex: regex } },
-          { 'destinationDetails.state': { $regex: regex } },
-          { 'destinationDetails.terminal': { $regex: regex } },
-          { 'destinationDetails.shortForm': { $regex: regex } },
+          { departure: { $in: locationIds } },
+          { destination: { $in: locationIds } },
         ];
       }
 

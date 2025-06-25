@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -22,6 +23,7 @@ import {
 } from './dto/route.input.dto';
 import {
   CreateRouteResponse,
+  DeleteRouteResponse,
   FindRouteResponse,
   RouteByIdResponse,
 } from './dto/route.output.dto';
@@ -70,5 +72,17 @@ export class RouteController {
   ): Promise<RouteByIdResponse> {
     const email = req.user.email;
     return await this._routeService.updateRoute(id, input, email);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete Route by ID' })
+  deleteRoute(
+    @Param('id') id: string,
+    @Req() req,
+  ): Promise<DeleteRouteResponse> {
+    const email = req.user.email;
+    return this._routeService.deleteRoute(id, email);
   }
 }

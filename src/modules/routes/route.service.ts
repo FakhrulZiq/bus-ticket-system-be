@@ -20,6 +20,7 @@ import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateRouteInput,
   ICreateRouteResponse,
+  IDeleteRouteResponse,
   IFindRouteResponse,
   IListRouteInput,
   IRouteByID,
@@ -127,6 +128,35 @@ export class RouteService implements IRouteService {
       await this._cacheResponse(paginatedBook, cacheKey);
 
       return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async deleteRoute(id: string, email: string): Promise<IDeleteRouteResponse> {
+    try {
+      const user = await this._routeRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException('Route not found');
+      }
+
+      const deleteAuditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.delete,
+      );
+
+      const deleteUser = await this._routeRepository.update(
+        { id },
+        { ...deleteAuditProps },
+      );
+      if (!deleteUser) {
+        throw new InternalServerErrorException(`Failed to delete Route`);
+      }
+
+      await this._deleteRoutePageCache();
+
+      return { message: 'Route deleted successfully!' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

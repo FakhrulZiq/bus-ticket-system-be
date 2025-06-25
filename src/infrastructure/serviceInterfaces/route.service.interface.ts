@@ -12,6 +12,7 @@ export interface IRouteService {
     input: IUpdateRouteInput,
     email: string,
   ): Promise<IRouteByID>;
+  deleteRoute(id: string, email: string): Promise<IDeleteRouteResponse>;
 }
 
 export interface ICreateRouteInput {
@@ -49,3 +50,5 @@ export interface IRouteByID {
 export interface IUpdateRouteInput extends ICreateRouteInput {}
 
 export interface ICreateRouteResponse extends IMessageResponse {}
+
+export interface IDeleteRouteResponse extends IMessageResponse {}
