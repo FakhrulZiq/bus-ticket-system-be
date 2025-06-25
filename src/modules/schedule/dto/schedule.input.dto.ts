@@ -2,16 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateScheduleInput {
   @ApiProperty()
-  busNumber: string;
+  busId: string;
 
   @ApiProperty()
-  route: string;
+  routeId: string;
 
   @ApiProperty()
-  departureTime: string;
+  departureDateTime: string;
 
   @ApiProperty()
-  arrivalTime: string;
+  arrivalDateTime: string;
 
   @ApiProperty()
   price: number;

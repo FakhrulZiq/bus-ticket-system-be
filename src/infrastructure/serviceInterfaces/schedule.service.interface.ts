@@ -8,10 +8,10 @@ export interface IScheduleService {
 }
 
 export interface ICreateScheduleInput {
-  busNumber: string;
-  route: string;
-  departureTime: string;
-  arrivalTime: string;
+  busId: string;
+  routeId: string;
+  departureDateTime: string;
+  arrivalDateTime: string;
   price: number;
   seatLayout: string;
   bookedSeats: string[];
