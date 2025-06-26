@@ -5,16 +5,28 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
-import { IScheduleRepository } from 'src/infrastructure/dataAccess/repositories/interfaces/schedule.repository.interface';
+import {
+  IListScheduleByPaginationResponse,
+  IScheduleRepository,
+} from 'src/infrastructure/dataAccess/repositories/interfaces/schedule.repository.interface';
 import { IContextAwareLogger } from 'src/infrastructure/logger';
 import { IRedisService } from 'src/infrastructure/redis/redisInterface';
 import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateScheduleInput,
   ICreateScheduleResponse,
+  IFindScheduleResponse,
+  IListScheduleInput,
   IScheduleService,
 } from 'src/infrastructure/serviceInterfaces/schedule.service.interface';
-import { CRUD_ACTION, TYPES } from 'src/utilities/constant';
+import {
+  CRUD_ACTION,
+  DEFAULT_CACHE_TIME_TO_LIVE,
+  PAGINATION,
+  TYPES,
+} from 'src/utilities/constant';
+import { pagination } from 'src/utilities/utility';
+import { ScheduleParser } from './schedule.parser';
 
 @Injectable()
 export class ScheduleService implements IScheduleService {
@@ -67,6 +79,42 @@ export class ScheduleService implements IScheduleService {
     }
   }
 
+  async listSchedule(
+    input: IListScheduleInput,
+  ): Promise<IFindScheduleResponse> {
+    try {
+      const { pageNum, pageSize, search } = input;
+
+      const defaultPageSize = PAGINATION.defaultRecords;
+      input.pageSize = pageSize ?? defaultPageSize;
+
+      const cacheKey = `list_schedule_page${pageNum}_limit${pageSize}_searchBy${search}`;
+
+      const cachedData = await this._getCachedData(cacheKey);
+
+      if (cachedData && !input.search) {
+        return cachedData;
+      }
+      const schedules: IListScheduleByPaginationResponse =
+        await this._scheduleRepository.listScheduleByPagination(input);
+
+      const parsedSchedule = ScheduleParser.listSchedule(schedules.data);
+
+      const paginatedBook: IFindScheduleResponse = pagination(
+        parsedSchedule,
+        input,
+        schedules.total,
+      ) as unknown as IFindScheduleResponse;
+
+      await this._cacheResponse(paginatedBook, cacheKey);
+
+      return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
   private _generateSeatLabels(
     seatLayout: string,
     bookedSeats: string[],
@@ -88,6 +136,18 @@ export class ScheduleService implements IScheduleService {
     }
 
     return seatLabels;
+  }
+
+  private async _getCachedData(cacheKey: string): Promise<any> {
+    return (await this._redisCacheService.get(cacheKey)) as any;
+  }
+
+  private async _cacheResponse(data: any, cacheKey: string): Promise<void> {
+    await this._redisCacheService.set(
+      cacheKey,
+      data,
+      DEFAULT_CACHE_TIME_TO_LIVE,
+    );
   }
 
   private async _deleteSchedulePageCache(): Promise<void> {
