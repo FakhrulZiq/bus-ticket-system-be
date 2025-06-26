@@ -1,4 +1,13 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { IScheduleService } from 'src/infrastructure/serviceInterfaces/schedule.service.interface';
 import { TYPES } from 'src/utilities/constant';
@@ -12,6 +21,7 @@ import {
 import {
   CreateScheduleResponse,
   FindScheduleResponse,
+  ScheduleByIdResponse,
 } from './dto/schedule.output.dto';
 
 @Controller('schedules')
@@ -41,5 +51,12 @@ export class ScheduleController {
     @Body() input: ListScheduleInput,
   ): Promise<FindScheduleResponse> {
     return this._scheduleService.listSchedule(input);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get Schedule by ID' })
+  getSchedule(@Param('id') id: string): Promise<ScheduleByIdResponse> {
+    return this._scheduleService.findScheduleById(id);
   }
 }
