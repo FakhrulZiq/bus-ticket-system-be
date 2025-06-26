@@ -22,3 +22,14 @@ export class CreateScheduleInput {
   @ApiProperty()
   bookedSeats: string[];
 }
+
+export class ListScheduleInput {
+  @ApiProperty()
+  search?: string;
+
+  @ApiProperty()
+  pageNum?: number;
+
+  @ApiProperty()
+  pageSize?: number;
+}
