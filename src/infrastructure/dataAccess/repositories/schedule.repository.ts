@@ -21,10 +21,10 @@ export class ScheduleRepository
   async isDuplicateSchedule(input: ICreateScheduleInput): Promise<boolean> {
     try {
       const isDuplicate = await this._scheduleModel.findOne({
-        busNumber: input.busNumber,
-        departureTime: input.departureTime,
-        arrivalTime: input.arrivalTime,
-        route: input.route,
+        busNumber: input.routeId,
+        departureTime: input.departureDateTime,
+        arrivalTime: input.arrivalDateTime,
+        route: input.routeId,
       });
 
       return !!isDuplicate;

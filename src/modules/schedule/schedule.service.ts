@@ -40,14 +40,17 @@ export class ScheduleService implements IScheduleService {
         );
       }
 
-      const seatLayout = this._generateSeatLabels(input.seatLayout);
+      const availableSeats: string[] = this._generateSeatLabels(
+        input.seatLayout,
+        input.bookedSeats,
+      );
 
       const auditProps: IAudit = Audit.createAuditProperties(
         email,
         CRUD_ACTION.create,
       );
 
-      const scheduleToSave = { ...input, ...auditProps, seatLayout };
+      const scheduleToSave = { ...input, ...auditProps, availableSeats };
 
       const savedSchedule = await this._scheduleRepository.save(scheduleToSave);
 
@@ -57,14 +60,17 @@ export class ScheduleService implements IScheduleService {
 
       await this._deleteSchedulePageCache();
 
-      return { message: 'User registration successfully' };
+      return { message: 'Schedule added successfully' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
     }
   }
 
-  private _generateSeatLabels(seatLayout: string): string[] {
+  private _generateSeatLabels(
+    seatLayout: string,
+    bookedSeats: string[],
+  ): string[] {
     const [columnCount, rowCount] = seatLayout.split('x').map(Number);
     const seatLabels: string[] = [];
 
@@ -74,7 +80,10 @@ export class ScheduleService implements IScheduleService {
 
     for (let row = 1; row <= rowCount; row++) {
       for (const letter of seatLetters) {
-        seatLabels.push(`${row}${letter}`);
+        const seat = `${row}${letter}`;
+        if (!bookedSeats.includes(seat)) {
+          seatLabels.push(seat);
+        }
       }
     }
 
