@@ -12,6 +12,7 @@ export interface IScheduleService {
     input: IUpdateScheduleInput,
     email: string,
   ): Promise<IScheduleByID>;
+  deleteSchedule(id: string, email: string): Promise<IDeleteScheduleResponse>;
 }
 
 export interface ICreateScheduleInput {
@@ -67,3 +68,5 @@ interface IRouteDetails {
 export interface ICreateScheduleResponse extends IMessageResponse {}
 
 export interface IUpdateScheduleInput extends ICreateScheduleInput {}
+
+export interface IDeleteScheduleResponse extends IMessageResponse {}

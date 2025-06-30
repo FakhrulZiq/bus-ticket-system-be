@@ -17,6 +17,7 @@ import { IAudit } from 'src/infrastructure/serviceInterfaces/audit.interface';
 import {
   ICreateScheduleInput,
   ICreateScheduleResponse,
+  IDeleteScheduleResponse,
   IFindScheduleResponse,
   IListScheduleInput,
   IScheduleByID,
@@ -180,6 +181,38 @@ export class ScheduleService implements IScheduleService {
       );
 
       return ScheduleParser.scheduleById(ScheduleResponse);
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async deleteSchedule(
+    id: string,
+    email: string,
+  ): Promise<IDeleteScheduleResponse> {
+    try {
+      const user = await this._scheduleRepository.findOne({ id });
+      if (!user) {
+        throw new NotFoundException('Schedule not found');
+      }
+
+      const deleteAuditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.delete,
+      );
+
+      const deleteUser = await this._scheduleRepository.update(
+        { id },
+        { ...deleteAuditProps },
+      );
+      if (!deleteUser) {
+        throw new InternalServerErrorException(`Failed to delete Schedule`);
+      }
+
+      await this._deleteSchedulePageCache();
+
+      return { message: 'Schedule deleted successfully!' };
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
