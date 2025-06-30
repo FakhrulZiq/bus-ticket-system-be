@@ -1,18 +1,23 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
   ICreateScheduleInput,
   IListScheduleInput,
 } from 'src/infrastructure/serviceInterfaces/schedule.service.interface';
+import { Bus, BusDocument } from '../schemas/Bus.schema';
+import { Route, RouteDocument } from '../schemas/Route.schema';
 import { Schedule, ScheduleDocument } from '../schemas/schedule.schema';
 import { GenericRepository } from './generic.repository';
 import {
   IListScheduleByPaginationResponse,
+  IScheduleList,
   IScheduleRepository,
 } from './interfaces/schedule.repository.interface';
-import { Bus, BusDocument } from '../schemas/Bus.schema';
-import { Route, RouteDocument } from '../schemas/Route.schema';
 
 @Injectable()
 export class ScheduleRepository
@@ -204,6 +209,131 @@ export class ScheduleRepository
         total,
       };
     } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getScheduleById(id: string): Promise<IScheduleList> {
+    try {
+      const schedule = await this._scheduleModel
+        .aggregate([
+          { $match: { id, deletedAt: null } },
+          {
+            $lookup: {
+              from: 'buses',
+              let: { busId: '$busId' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$id', '$$busId'] },
+                    deletedAt: null,
+                  },
+                },
+                {
+                  $project: {
+                    plateNumber: 1,
+                    busType: 1,
+                    operatorName: 1,
+                    totalSeats: 1,
+                  },
+                },
+              ],
+              as: 'busDetails',
+            },
+          },
+          { $unwind: '$busDetails' },
+          {
+            $lookup: {
+              from: 'routes',
+              let: { routeId: '$routeId' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$id', '$$routeId'] },
+                    deletedAt: null,
+                  },
+                },
+              ],
+              as: 'routeDetails',
+            },
+          },
+          { $unwind: '$routeDetails' },
+          {
+            $lookup: {
+              from: 'locations',
+              let: { departureId: '$routeDetails.departure' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$id', '$$departureId'] },
+                    deletedAt: null,
+                  },
+                },
+                {
+                  $project: { shortForm: 1 },
+                },
+              ],
+              as: 'departureDetails',
+            },
+          },
+          { $unwind: '$departureDetails' },
+          {
+            $lookup: {
+              from: 'locations',
+              let: { destinationId: '$routeDetails.destination' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$id', '$$destinationId'] },
+                    deletedAt: null,
+                  },
+                },
+                {
+                  $project: { shortForm: 1 },
+                },
+              ],
+              as: 'destinationDetails',
+            },
+          },
+          { $unwind: '$destinationDetails' },
+          {
+            $project: {
+              id: 1,
+              departureDateTime: 1,
+              arrivalDateTime: 1,
+              price: 1,
+              availableSeats: 1,
+              bookedSeats: 1,
+              seatLayout: 1,
+              busDetails: 1,
+              routeDetails: {
+                id: '$routeDetails.id',
+                distanceKm: '$routeDetails.distanceKm',
+                estimatedTime: '$routeDetails.estimatedTime',
+                departure: {
+                  shortForm: '$departureDetails.shortForm',
+                },
+                destination: {
+                  shortForm: '$destinationDetails.shortForm',
+                },
+              },
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          },
+          { $limit: 1 },
+        ])
+        .exec();
+
+      if (!schedule || schedule.length === 0) {
+        throw new NotFoundException(`Schedule with ID ${id} not found`);
+      }
+
+      return schedule[0];
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(error);
     }
   }

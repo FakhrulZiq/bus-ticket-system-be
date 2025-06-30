@@ -11,6 +11,7 @@ export interface IScheduleRepository
   listScheduleByPagination(
     input: IListScheduleInput,
   ): Promise<IListScheduleByPaginationResponse>;
+  getScheduleById(id: string): Promise<IScheduleList>;
 }
 
 export interface IListScheduleByPaginationResponse {

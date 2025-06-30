@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
 import {
@@ -17,6 +18,7 @@ import {
   ICreateScheduleResponse,
   IFindScheduleResponse,
   IListScheduleInput,
+  IScheduleByID,
   IScheduleService,
 } from 'src/infrastructure/serviceInterfaces/schedule.service.interface';
 import {
@@ -109,6 +111,22 @@ export class ScheduleService implements IScheduleService {
       await this._cacheResponse(paginatedBook, cacheKey);
 
       return paginatedBook;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async findScheduleById(id: string): Promise<IScheduleByID> {
+    try {
+      const schedule = await this._scheduleRepository.getScheduleById(id);
+      if (!schedule) {
+        throw new NotFoundException(`Schedule with ID ${id} not found`);
+      }
+
+      const ScheduleById = ScheduleParser.scheduleById(schedule);
+
+      return ScheduleById;
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;

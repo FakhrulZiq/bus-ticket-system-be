@@ -6,6 +6,7 @@ export interface IScheduleService {
     email: string,
   ): Promise<ICreateScheduleResponse>;
   listSchedule(input: IListScheduleInput): Promise<IFindScheduleResponse>;
+  findScheduleById(id: string): Promise<IScheduleByID>;
 }
 
 export interface ICreateScheduleInput {
