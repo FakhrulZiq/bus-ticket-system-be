@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import {
   CreateScheduleInput,
   ListScheduleInput,
+  UpdateScheduleInput,
 } from './dto/schedule.input.dto';
 import {
   CreateScheduleResponse,
@@ -58,5 +60,17 @@ export class ScheduleController {
   @ApiOperation({ summary: 'Get Schedule by ID' })
   getSchedule(@Param('id') id: string): Promise<ScheduleByIdResponse> {
     return this._scheduleService.findScheduleById(id);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update Schedule' })
+  async updateBus(
+    @Param('id') id: string,
+    @Body() input: UpdateScheduleInput,
+    @Req() req,
+  ): Promise<ScheduleByIdResponse> {
+    const email = req.user.email;
+    return await this._scheduleService.updateSchedule(id, input, email);
   }
 }

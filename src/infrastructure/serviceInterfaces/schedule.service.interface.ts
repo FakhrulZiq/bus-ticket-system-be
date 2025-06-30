@@ -7,6 +7,11 @@ export interface IScheduleService {
   ): Promise<ICreateScheduleResponse>;
   listSchedule(input: IListScheduleInput): Promise<IFindScheduleResponse>;
   findScheduleById(id: string): Promise<IScheduleByID>;
+  updateSchedule(
+    id: string,
+    input: IUpdateScheduleInput,
+    email: string,
+  ): Promise<IScheduleByID>;
 }
 
 export interface ICreateScheduleInput {
@@ -60,3 +65,5 @@ interface IRouteDetails {
 }
 
 export interface ICreateScheduleResponse extends IMessageResponse {}
+
+export interface IUpdateScheduleInput extends ICreateScheduleInput {}

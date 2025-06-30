@@ -33,3 +33,5 @@ export class ListScheduleInput {
   @ApiProperty()
   pageSize?: number;
 }
+
+export class UpdateScheduleInput extends CreateScheduleInput {}
