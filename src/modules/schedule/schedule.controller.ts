@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -22,6 +23,7 @@ import {
 } from './dto/schedule.input.dto';
 import {
   CreateScheduleResponse,
+  DeleteScheduleResponse,
   FindScheduleResponse,
   ScheduleByIdResponse,
 } from './dto/schedule.output.dto';
@@ -72,5 +74,17 @@ export class ScheduleController {
   ): Promise<ScheduleByIdResponse> {
     const email = req.user.email;
     return await this._scheduleService.updateSchedule(id, input, email);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete Schedule by ID' })
+  deleteSchedule(
+    @Param('id') id: string,
+    @Req() req,
+  ): Promise<DeleteScheduleResponse> {
+    const email = req.user.email;
+    return this._scheduleService.deleteSchedule(id, email);
   }
 }

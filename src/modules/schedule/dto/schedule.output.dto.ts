@@ -5,6 +5,8 @@ export class CreateScheduleResponse {
   message: string;
 }
 
+export class DeleteScheduleResponse extends CreateScheduleResponse {}
+
 export class FindScheduleResponse {
   @ApiProperty()
   data: ScheduleByIdResponse[];
