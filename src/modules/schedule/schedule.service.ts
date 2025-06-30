@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Audit } from 'src/infrastructure/audit/audit';
@@ -20,6 +21,7 @@ import {
   IListScheduleInput,
   IScheduleByID,
   IScheduleService,
+  IUpdateScheduleInput,
 } from 'src/infrastructure/serviceInterfaces/schedule.service.interface';
 import {
   CRUD_ACTION,
@@ -127,6 +129,57 @@ export class ScheduleService implements IScheduleService {
       const ScheduleById = ScheduleParser.scheduleById(schedule);
 
       return ScheduleById;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
+    }
+  }
+
+  async updateSchedule(
+    id: string,
+    input: IUpdateScheduleInput,
+    email: string,
+  ): Promise<IScheduleByID> {
+    try {
+      const schedule = await this._scheduleRepository.findOne({ id });
+      if (!schedule) {
+        throw new NotFoundException(`There is no Schedule with ID ${id}`);
+      }
+
+      let seatLayout: string;
+      if (input.seatLayout === schedule.seatLayout) {
+        seatLayout = input.seatLayout;
+      }
+      let bookedSeats: string[];
+      if (input.seatLayout === schedule.seatLayout) {
+        bookedSeats = input.bookedSeats;
+      }
+
+      const availableSeats: string[] = this._generateSeatLabels(
+        seatLayout ?? schedule.seatLayout,
+        bookedSeats ?? schedule.bookedSeats,
+      );
+
+      const auditProps: IAudit = Audit.createAuditProperties(
+        email,
+        CRUD_ACTION.update,
+      );
+
+      const ScheduleUpdate = await this._scheduleRepository.update(
+        { id },
+        { ...auditProps, ...input, availableSeats },
+      );
+      if (!ScheduleUpdate) {
+        throw new InternalServerErrorException(`Failed to update schedule`);
+      }
+
+      await this._deleteSchedulePageCache();
+
+      const ScheduleResponse = await this._scheduleRepository.getScheduleById(
+        ScheduleUpdate.id,
+      );
+
+      return ScheduleParser.scheduleById(ScheduleResponse);
     } catch (error) {
       this._logger.error(error.message, error);
       throw error;
